@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단어장 - SET 19</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f13; --card-front: #1a1a24; --card-back: #1e2a1e;
+    --accent: #c8f542; --text: #f0f0f0; --muted: #666;
+    --danger: #ff4d4d; --border: #2a2a38;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 24px 16px 48px; gap: 14px; }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 4px;
+    color: var(--accent); text-align: center; }
+  .top-row { display: flex; align-items: center; justify-content: space-between;
+    width: 100%; max-width: 420px; }
+  .counter { font-size: 0.82rem; color: var(--muted); letter-spacing: 2px; }
+  .btn-reset { background: transparent; border: 1.5px solid #3a2020; color: var(--danger);
+    border-radius: 99px; padding: 5px 14px; font-size: 0.75rem;
+    font-family: 'Noto Sans KR', sans-serif; cursor: pointer; }
+  .progress-bar-wrap { width: 100%; max-width: 420px; background: var(--border);
+    border-radius: 99px; height: 6px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--accent); border-radius: 99px;
+    transition: width 0.4s ease; }
+  .save-badge { font-size: 0.72rem; color: var(--muted); opacity: 0;
+    transition: opacity 0.4s; height: 16px; }
+  .save-badge.show { opacity: 1; }
+  .page-label { width: 100%; max-width: 420px; font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem; letter-spacing: 3px; color: var(--muted); }
+  .card-list { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 10px; }
+  .flip-wrap { width: 100%; cursor: pointer; }
+  .flip-front { display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 18px; border-radius: 14px; background: var(--card-front);
+    border: 1.5px solid var(--border); min-height: 72px; }
+  .flip-back { display: none; flex-direction: column; align-items: flex-start;
+    gap: 8px; padding: 16px 18px; border-radius: 14px; background: var(--card-back);
+    border: 1.5px solid #2a3a2a; }
+  .flip-wrap.flipped .flip-front { display: none; }
+  .flip-wrap.flipped .flip-back { display: flex; }
+  .flip-wrap.marked-know .flip-front { border-color: var(--accent); }
+  .flip-wrap.marked-miss .flip-front { border-color: var(--danger); }
+  .card-num { font-size: 0.72rem; color: var(--muted); min-width: 24px; }
+  .card-en { font-weight: 700; font-size: 1.15rem; color: var(--accent); flex: 1; padding: 0 10px; }
+  .card-back-en { font-weight: 700; font-size: 0.9rem; color: var(--accent); opacity: 0.7; }
+  .card-kr { font-size: 1.1rem; font-weight: 700; color: #d0f0a0; }
+  .btn-speak { background: transparent; border: none; font-size: 1.1rem;
+    cursor: pointer; padding: 2px 6px; border-radius: 6px; }
+  .mark-row { display: flex; gap: 8px; margin-top: 8px; width: 100%; }
+  .btn-mark { flex: 1; padding: 8px 0; border-radius: 8px; border: none;
+    font-family: 'Noto Sans KR', sans-serif; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+  .btn-know { background: var(--accent); color: #111; }
+  .btn-dontknow { background: #2a1a1a; color: var(--danger); border: 1.5px solid #3a2020; }
+  .nav-row { display: flex; gap: 12px; width: 100%; max-width: 420px; }
+  .btn-nav { flex: 1; padding: 14px; border-radius: 14px; font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.9rem; font-weight: 700; cursor: pointer; border: 1.5px solid var(--border);
+    background: #1e1e2e; color: var(--text); }
+  .btn-nav:disabled { opacity: 0.3; cursor: default; }
+  .btn-nav.primary { background: var(--accent); color: #111; border-color: var(--accent); }
+  .done-screen { display: flex; flex-direction: column; align-items: center;
+    gap: 10px; text-align: center; padding: 20px; max-width: 420px; width: 100%; }
+  .btn-done { border-radius: 14px; padding: 14px 0; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; width: 100%; max-width: 320px; font-family: 'Noto Sans KR', sans-serif; }
+  .btn-done-all { background: var(--accent); color: #111; border: none; }
+  .btn-done-miss { background: #2a1a1a; color: var(--danger); border: 1.5px solid #3a2020; }
+  .btn-done-know { background: #1a2a1a; color: #7be87b; border: 1.5px solid #2a3a2a; }
+  .word-row { display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; margin-bottom: 6px; border-radius: 10px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<h1>단어장 SET 19 ⚡</h1>
+
+<div class="top-row">
+  <div class="counter" id="counterText"></div>
+  <button class="btn-reset" onclick="confirmReset()">🔄 초기화</button>
+</div>
+<div class="progress-bar-wrap">
+  <div class="progress-bar" id="progressBar" style="width:0%"></div>
+</div>
+<div class="save-badge" id="saveBadge">💾 자동저장됨</div>
+
+<div id="mainArea">
+  <div class="page-label" id="pageLabel"></div>
+  <div class="card-list" id="cardList"></div>
+  <div class="nav-row">
+    <button class="btn-nav" id="btnPrev" onclick="goPrev()">← 이전</button>
+    <button class="btn-nav primary" id="btnNext" onclick="goNext()">다음 →</button>
+  </div>
+</div>
+
+<div class="done-screen hidden" id="doneScreen"></div>
+
+<script>
+const ALL_WORDS = [
+  { en: "oppose", kr: "반대하다" },
+  { en: "artificial", kr: "인공적인" },
+  { en: "crush", kr: "으깨다 / 매주란을 깨기" },
+  { en: "embrace", kr: "포용하다 / 받아들이다" },
+  { en: "compare", kr: "비교하다" },
+  { en: "permanent", kr: "끊임없는 / 영구적인" },
+  { en: "forcast", kr: "예측 / 예보 / 예측하다 / 예보하다" },
+  { en: "persistent", kr: "끊임없는 / 영구적인" },
+  { en: "disparity", kr: "불균형 / 불일치" },
+  { en: "synthetic", kr: "인조의" },
+  { en: "prior", kr: "앞의 / ~보다앞선" },
+  { en: "permit", kr: "허용하다" },
+  { en: "incident", kr: "사건 / 일어날일" },
+  { en: "priority", kr: "우선권" },
+  { en: "preference", kr: "우선권 / 더좋아함" },
+  { en: "divide", kr: "나누다 / 쪼개다" },
+  { en: "barely", kr: "간신히 / 겨우 / ~의 ~이나 다" },
+  { en: "apply to", kr: "~에 적용되다" },
+  { en: "struggle", kr: "애쓰다 / 다투다 / 투쟁 / 노력" },
+  { en: "optimal", kr: "최적의 / 최상의" },
+  { en: "consult", kr: "상담하다" },
+  { en: "transmit", kr: "전달하다 / 전송시키다" },
+  { en: "admit", kr: "자백하다 / 허용하다" },
+  { en: "coincide", kr: "동시에 발생하다" },
+  { en: "eternal", kr: "끊임없는 / 영구적인" },
+  { en: "vacant", kr: "비어있는" },
+  { en: "contrary", kr: "반대하다" },
+  { en: "affordable", kr: "가격이 알맞은" },
+  { en: "repair", kr: "수리하다" },
+  { en: "be fond of", kr: "~을 좋아하다" },
+  { en: "clever", kr: "영리한" },
+  { en: "perpetual", kr: "끊임없는 / 영구적인" },
+  { en: "fare", kr: "요금" },
+  { en: "reverse", kr: "반대하다" },
+  { en: "resist", kr: "반대하다" },
+  { en: "outcome", kr: "결과 / 성과 / 결론" },
+  { en: "constant", kr: "끊임없는 / 영구적인" },
+  { en: "precedence", kr: "우선권 / 선행" },
+  { en: "ultimate", kr: "최종의 / 최고의" },
+  { en: "feature", kr: "특징 / 피처본의특징" },
+  { en: "comparable", kr: "견줄만한" },
+  { en: "due(due date)", kr: "예정된 / 만료일 / 제출예정일" },
+  { en: "violate", kr: "어기다 / 위반하다" },
+  { en: "recent", kr: "최근의" },
+  { en: "rebellious", kr: "반항하는" },
+  { en: "transmission", kr: "전송 / 전달" },
+  { en: "devore", kr: "바치다" },
+  { en: "resemble", kr: "닮다 / 비슷하다" },
+  { en: "accept", kr: "수용" },
+  { en: "absurd", kr: "터무니없는 / 불합리한" },
+  { en: "enable", kr: "~을 할 수 있게하다" },
+  { en: "partial", kr: "편파적인 / 부분적인" },
+  { en: "either", kr: "둘 중 어느하나" },
+  { en: "offer", kr: "제공하다 / 제안하다" },
+  { en: "rate", kr: "요금" },
+  { en: "gross", kr: "총계" },
+  { en: "encourage A to B", kr: "A가 B하도록 권장하다" },
+  { en: "insolvent", kr: "파산한" },
+  { en: "detain", kr: "붙잡다 / 억류하다" },
+  { en: "emphasis", kr: "강조 / 주안점" },
+  { en: "ceiling", kr: "천장" },
+  { en: "cattle", kr: "소떼" },
+  { en: "prevent A from B", kr: "A가 B하는 것을 막다" },
+  { en: "comparability", kr: "비교가능성" },
+  { en: "counsel", kr: "상담" },
+  { en: "castle", kr: "성" },
+  { en: "incessant", kr: "끊임없는 / 영구적인" }
+]
+
+const PAGE_SIZE = 10;
+const STORAGE_KEY = 'fc_set19_s';
+const RESULT_KEY  = 'fc_set19_r';
+
+let deck=[], page=0, marks=[], flipped=[], isFirst=true;
+
+function byEn(e){ return ALL_WORDS.find(w=>w.en===e); }
+function shuffle(a){ const r=[...a]; for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];} return r; }
+
+function speak(word){ const u=new SpeechSynthesisUtterance(word); u.lang='en-US'; u.rate=0.9; speechSynthesis.cancel(); speechSynthesis.speak(u); }
+
+function flashSave(){ const e=document.getElementById('saveBadge'); e.classList.add('show'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('show'),1500); }
+
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify({dk:deck.map(w=>w.en),page,marks,isFirst})); flashSave(); }catch(e){} }
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)); }catch(e){ return null; } }
+function saveResult(k,m){ try{ localStorage.setItem(RESULT_KEY,JSON.stringify({k,m})); }catch(e){} }
+function loadResult(){ try{ return JSON.parse(localStorage.getItem(RESULT_KEY)); }catch(e){ return null; } }
+
+function startAll(){
+  localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(RESULT_KEY);
+  deck=shuffle(ALL_WORDS); page=0; marks=new Array(deck.length).fill('none'); isFirst=true;
+  document.getElementById('doneScreen').classList.add('hidden');
+  document.getElementById('mainArea').classList.remove('hidden');
+  render(); saveState();
+}
+
+function startReview(keys){
+  const words=keys.map(byEn).filter(Boolean);
+  if(!words.length) return;
+  deck=shuffle(words); page=0; marks=new Array(deck.length).fill('none'); isFirst=false;
+  document.getElementById('doneScreen').classList.add('hidden');
+  document.getElementById('mainArea').classList.remove('hidden');
+  render(); saveState();
+}
+
+function render(){
+  const start=page*PAGE_SIZE, end=Math.min(start+PAGE_SIZE,deck.length);
+  document.getElementById('pageLabel').textContent=`📖 ${start+1}~${end} / ${deck.length}${isFirst?'':' (복습중)'}`;
+  document.getElementById('progressBar').style.width=`${Math.round(end/deck.length*100)}%`;
+  document.getElementById('counterText').textContent=`${Math.round(end/deck.length*100)}% 완료`;
+
+  const list=document.getElementById('cardList');
+  list.innerHTML='';
+  flipped=new Array(end-start).fill(false);
+
+  deck.slice(start,end).forEach((w,i)=>{
+    const mark=marks[start+i];
+    const wrap=document.createElement('div');
+    wrap.className='flip-wrap'+(mark==='know'?' marked-know':mark==='miss'?' marked-miss':'');
+
+    const front=document.createElement('div');
+    front.className='flip-front';
+    front.innerHTML=`<span class="card-num">${start+i+1}</span><span class="card-en">${w.en}</span>`;
+    const speakBtn1=document.createElement('button');
+    speakBtn1.className='btn-speak'; speakBtn1.textContent='🔊';
+    speakBtn1.addEventListener('click',e=>{e.stopPropagation();speak(w.en);});
+    front.appendChild(speakBtn1);
+
+    const back=document.createElement('div');
+    back.className='flip-back';
+    const topRow=document.createElement('div');
+    topRow.style.cssText='display:flex;align-items:center;gap:8px;';
+    topRow.innerHTML=`<span class="card-back-en">${w.en}</span>`;
+    const speakBtn2=document.createElement('button');
+    speakBtn2.className='btn-speak'; speakBtn2.textContent='🔊';
+    speakBtn2.addEventListener('click',e=>{e.stopPropagation();speak(w.en);});
+    topRow.appendChild(speakBtn2);
+    const kr=document.createElement('span'); kr.className='card-kr'; kr.textContent=w.kr;
+    const row=document.createElement('div'); row.className='mark-row';
+    const missBtn=document.createElement('button'); missBtn.className='btn-mark btn-dontknow'; missBtn.textContent='😵 모르겠다';
+    missBtn.addEventListener('click',e=>{e.stopPropagation();markCard(i,'miss');});
+    const knowBtn=document.createElement('button'); knowBtn.className='btn-mark btn-know'; knowBtn.textContent='✓ 알았다!';
+    knowBtn.addEventListener('click',e=>{e.stopPropagation();markCard(i,'know');});
+    row.appendChild(missBtn); row.appendChild(knowBtn);
+    back.appendChild(topRow); back.appendChild(kr); back.appendChild(row);
+
+    wrap.appendChild(front); wrap.appendChild(back);
+    wrap.addEventListener('click',()=>{if(!flipped[i]){flipped[i]=true;wrap.classList.add('flipped');}});
+    list.appendChild(wrap);
+  });
+
+  document.getElementById('btnPrev').disabled=page===0;
+  const total=Math.ceil(deck.length/PAGE_SIZE);
+  document.getElementById('btnNext').textContent=page>=total-1?'완료 🎉':'다음 →';
+  window.scrollTo(0,0);
+}
+
+function markCard(i,type){
+  const gi=page*PAGE_SIZE+i; marks[gi]=type;
+  const wraps=document.querySelectorAll('.flip-wrap');
+  wraps[i].classList.remove('marked-know','marked-miss');
+  wraps[i].classList.add(type==='know'?'marked-know':'marked-miss');
+  saveState();
+}
+
+function goPrev(){ if(page>0){page--;render();saveState();} }
+function goNext(){ if(page>=Math.ceil(deck.length/PAGE_SIZE)-1){showDone();}else{page++;render();saveState();} }
+
+function showDone(){
+  const knownKeys=[], missedKeys=[];
+  marks.forEach((m,i)=>{ if(m==='know')knownKeys.push(deck[i].en); else if(m==='miss')missedKeys.push(deck[i].en); });
+  if(isFirst) saveResult(knownKeys, missedKeys);
+  document.getElementById('mainArea').classList.add('hidden');
+  renderDone(knownKeys, missedKeys);
+  window.scrollTo(0,0);
+}
+
+function renderDone(knownKeys, missedKeys){
+  const saved=loadResult();
+  // 점수 표시: 전달받은 값 기준 (init에서 오면 saved.k/saved.m, 직접 완료면 현재 결과)
+  const dispK = knownKeys || [];
+  const dispM = missedKeys || [];
+  const total=dispK.length+dispM.length;
+  const r= total>0 ? dispK.length/total : 0;
+  const ds=document.getElementById('doneScreen');
+  ds.innerHTML='';
+  ds.classList.remove('hidden');
+
+  // 점수
+  ds.innerHTML=`
+    <div style="font-size:3rem;">🎉</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:3.5rem;color:var(--accent);line-height:1;">${dispK.length} / ${total}</div>
+    <div style="font-size:0.78rem;color:var(--muted);letter-spacing:2px;margin-bottom:4px;">정답 / 전체</div>
+    <div style="font-size:0.88rem;color:var(--muted);margin-bottom:16px;">${r===1?'완벽해요! 🏆':r>=0.8?'잘했어요! 💪':r>=0.5?'절반 이상! 📖':total===0?'학습을 시작해보세요!':'계속 연습해요 💡'}</div>
+  `;
+
+  // 틀린것 복습 버튼 (현재)
+  if(dispM.length>0){
+    const b=document.createElement('button'); b.className='btn-done btn-done-miss';
+    b.textContent=`❌ 틀린 것 다시 (${dispM.length}개)`;
+    b.addEventListener('click',()=>startReview(dispM)); ds.appendChild(b);
+  } else if(total>0) {
+    const p=document.createElement('div');
+    p.style.cssText='font-size:1rem;color:#7be87b;margin-bottom:8px;';
+    p.textContent='🎊 틀린 단어가 없어요!'; ds.appendChild(p);
+  }
+
+  // 최초 결과 기준 버튼
+  if(saved){
+    const sep=document.createElement('div');
+    sep.style.cssText='width:100%;max-width:320px;border-top:1px solid #2a2a38;margin:12px 0 8px;';
+    ds.appendChild(sep);
+    const lbl=document.createElement('div');
+    lbl.style.cssText='font-size:0.72rem;color:var(--muted);letter-spacing:1px;margin-bottom:8px;';
+    lbl.textContent='📌 최초 결과 기준'; ds.appendChild(lbl);
+
+    if(saved.m.length>0){
+      const b=document.createElement('button'); b.className='btn-done btn-done-miss';
+      b.textContent=`❌ 최초 틀린 것 (${saved.m.length}개)`;
+      b.addEventListener('click',()=>startReview(saved.m)); ds.appendChild(b);
+    }
+    if(saved.k.length>0){
+      const b=document.createElement('button'); b.className='btn-done btn-done-know';
+      b.textContent=`✓ 최초 맞은 것 (${saved.k.length}개)`;
+      b.addEventListener('click',()=>startReview(saved.k)); ds.appendChild(b);
+    }
+  }
+
+  // 맞은/틀린 단어 목록
+  function makeList(title, keys, color, border){
+    if(!keys.length) return;
+    const wrap=document.createElement('div');
+    wrap.style.cssText='width:100%;max-width:420px;margin-top:20px;text-align:left;';
+    const h=document.createElement('div');
+    h.style.cssText=`font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:${color};margin-bottom:8px;`;
+    h.textContent=`${title} (${keys.length}개)`; wrap.appendChild(h);
+    keys.forEach(en=>{
+      const w=byEn(en); if(!w) return;
+      const row=document.createElement('div'); row.className='word-row';
+      row.style.cssText=`background:#16161e;border:1.5px solid ${border};border-radius:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;`;
+      row.innerHTML=`<span style="font-weight:700;color:${color};">${w.en}</span><span style="font-size:0.82rem;color:#aaa;">${w.kr}</span>`;
+      wrap.appendChild(row);
+    });
+    ds.appendChild(wrap);
+  }
+
+  const showSaved = saved || {k: dispK, m: dispM};
+  makeList('✓ 맞은 단어', showSaved.k, 'var(--accent)', '#2a3a2a');
+  makeList('❌ 틀린 단어', showSaved.m, '#ff4d4d', '#3a2020');
+
+  // 처음부터
+  const sep2=document.createElement('div');
+  sep2.style.cssText='width:100%;max-width:320px;border-top:1px solid #2a2a38;margin:16px 0 8px;';
+  ds.appendChild(sep2);
+  const rb=document.createElement('button'); rb.className='btn-done btn-done-all';
+  rb.textContent='🔄 처음부터 다시'; rb.addEventListener('click',confirmReset); ds.appendChild(rb);
+}
+
+function confirmReset(){
+  if(confirm('처음부터 다시 시작할까요?')){
+    localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(RESULT_KEY); startAll();
+  }
+}
+
+function init(){
+  const s=loadState();
+  if(s && s.dk && s.dk.length>0){
+    try{
+      deck=s.dk.map(byEn).filter(Boolean); page=s.page||0;
+      marks=s.marks||new Array(deck.length).fill('none'); isFirst=s.isFirst!==false;
+      document.getElementById('doneScreen').classList.add('hidden');
+      document.getElementById('mainArea').classList.remove('hidden');
+      render(); return;
+    }catch(e){}
+  }
+  const saved=loadResult();
+  if(saved && (saved.k.length>0 || saved.m.length>0)){
+    isFirst=false;
+    document.getElementById('mainArea').classList.add('hidden');
+    // saved.k, saved.m 은 en 키 배열 — renderDone에 그대로 전달
+    renderDone(saved.k, saved.m); return;
+  }
+  startAll();
+}
+
+init();
+</script>
+</body>
+</html>
