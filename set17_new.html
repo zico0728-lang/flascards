@@ -339,6 +339,14 @@ function showDone(){
     var p=document.createElement('div'); p.style.cssText='color:#6bff7a;font-size:0.9rem;';
     p.textContent='🎊 틀린 단어가 없어요!'; ds.appendChild(p);
   }
+  // 복습모드 해제 버튼
+  if(state.isReview){
+    var bAll=document.createElement('button'); bAll.className='done-btn'; 
+    bAll.style.cssText='background:#1a1a1a;color:#aaa;border:1px solid #333;';
+    bAll.textContent='📚 전체 결과 보기';
+    bAll.onclick=function(){ state.isReview=false; state.reviewIds=[]; save(); showDone(); };
+    ds.appendChild(bAll);
+  }
 
   if(first){
     var sep=document.createElement('div'); sep.className='done-sep'; ds.appendChild(sep);
@@ -376,7 +384,11 @@ function showDone(){
 }
 
 function startReview(ids){
+  // 복습할 단어만 results 초기화, 나머지는 유지
   ids.forEach(function(id){ delete state.results[id]; });
+  // 복습 대상 아닌 단어는 임시로 'skip' 표시해서 필터에서 제외
+  state.reviewIds = ids;
+  state.isReview = true;
   state.filter='none'; state.page=0;
   document.getElementById('doneScreen').classList.remove('open');
   ['all','wrong','right','none'].forEach(function(x){
@@ -529,7 +541,9 @@ function prevPage(){
 }
 function resetAll(){
   localStorage.removeItem(RK);
-  state=newState();save();
+  state=newState();
+  state.isReview=false; state.reviewIds=[];
+  save();
   document.getElementById('doneScreen').classList.remove('open');
   render();showToast('🔄 초기화됐어!');
 }

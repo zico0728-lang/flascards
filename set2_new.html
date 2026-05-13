@@ -335,6 +335,14 @@ function showDone(){
     var p=document.createElement('div'); p.style.cssText='color:#6bff7a;font-size:0.9rem;';
     p.textContent='🎊 틀린 단어가 없어요!'; ds.appendChild(p);
   }
+  // 복습모드 해제 버튼
+  if(state.isReview){
+    var bAll=document.createElement('button'); bAll.className='done-btn'; 
+    bAll.style.cssText='background:#1a1a1a;color:#aaa;border:1px solid #333;';
+    bAll.textContent='📚 전체 결과 보기';
+    bAll.onclick=function(){ state.isReview=false; state.reviewIds=[]; save(); showDone(); };
+    ds.appendChild(bAll);
+  }
   if(first){
     var sep=document.createElement('div'); sep.className='done-sep'; ds.appendChild(sep);
     var fl=document.createElement('div'); fl.className='done-first-lbl'; fl.textContent='📌 최초 결과 기준'; ds.appendChild(fl);
@@ -519,7 +527,9 @@ function prevPage(){
 }
 function resetAll(){
   localStorage.removeItem(RK);
-  state=newState();save();
+  state=newState();
+  state.isReview=false; state.reviewIds=[];
+  save();
   document.getElementById('doneScreen').classList.remove('open');
   render();showToast('🔄 초기화됐어!');
 }
