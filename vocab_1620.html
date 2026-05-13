@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>단어장 - 16~20번</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:#0d0d0d;
+  color:#f0f0f0;
+  font-family:'Segoe UI',sans-serif;
+  min-height:100vh;
+  padding-bottom:60px;
+}
+.top{padding:28px 24px 0;text-align:center;}
+h1{
+  font-size:1.9rem;font-weight:900;color:#c8ff00;
+  letter-spacing:2px;margin-bottom:6px;
+  text-shadow:0 0 20px #c8ff0040;
+}
+.subtitle{font-size:0.8rem;color:#555;margin-bottom:18px;}
+
+.prog-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 24px;margin-bottom:8px;
+}
+.prog-text{font-size:0.9rem;color:#aaa;}
+.btn-reset{
+  background:#1a1a1a;border:1px solid #333;color:#aaa;
+  font-size:0.82rem;padding:7px 14px;border-radius:99px;cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+}
+.btn-reset:hover{border-color:#c8ff00;color:#c8ff00;}
+.prog-bar{height:5px;background:#222;margin:0 0 20px;}
+.prog-fill{height:100%;background:#c8ff00;transition:width 0.4s;}
+
+.stats{display:flex;gap:8px;padding:0 24px;margin-bottom:16px;}
+.stat-box{flex:1;background:#161616;border:1px solid #222;border-radius:10px;padding:10px;text-align:center;}
+.stat-num{font-size:1.1rem;font-weight:700;}
+.stat-lbl{font-size:0.65rem;color:#555;margin-top:2px;}
+.s-total .stat-num{color:#c8ff00;}
+.s-right .stat-num{color:#6bff7a;}
+.s-wrong .stat-num{color:#ff6b6b;}
+.s-left  .stat-num{color:#aaa;}
+
+.filter-row{display:flex;gap:8px;padding:0 24px;margin-bottom:10px;flex-wrap:wrap;}
+.f-btn{
+  padding:6px 14px;border-radius:99px;border:1px solid #2a2a2a;
+  background:none;color:#666;font-size:0.75rem;cursor:pointer;transition:all 0.15s;
+}
+.f-btn.on{background:#c8ff00;color:#000;border-color:#c8ff00;font-weight:700;}
+
+.sec-row{display:flex;gap:6px;padding:0 24px;margin-bottom:16px;flex-wrap:wrap;}
+.sec-btn{
+  padding:5px 12px;border-radius:99px;border:1px solid #1e1e1e;
+  background:none;color:#444;font-size:0.7rem;cursor:pointer;transition:all 0.15s;
+}
+.sec-btn.on{background:#222;color:#c8ff00;border-color:#333;}
+
+.page-label{
+  padding:0 24px;font-size:0.85rem;color:#888;
+  margin-bottom:14px;
+}
+.cards{padding:0 16px;}
+.word-card{
+  background:#181c18;border:1px solid #1e221e;border-radius:16px;
+  padding:0;margin-bottom:10px;cursor:pointer;
+  transition:border-color 0.15s;overflow:hidden;
+}
+.word-card:hover{border-color:#2e322e;}
+.word-card.correct{border-color:#6bff7a40;background:#0e180f;}
+.word-card.wrong{border-color:#ff6b6b40;background:#180e0e;}
+.card-main{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 16px;
+}
+.card-num{font-size:0.78rem;color:#3a3a3a;min-width:22px;text-align:right;}
+.card-word{font-size:1.15rem;font-weight:700;color:#c8ff00;flex:1;letter-spacing:0.3px;}
+.card-tag{font-size:0.6rem;color:#444;background:#1a1a1a;border:1px solid #222;border-radius:99px;padding:2px 7px;white-space:nowrap;}
+.card-status{font-size:1rem;min-width:22px;text-align:center;}
+.btn-sound{
+  background:none;border:none;font-size:1.4rem;
+  cursor:pointer;padding:2px 4px;border-radius:8px;
+  transition:transform 0.15s;line-height:1;
+}
+.btn-sound:active{transform:scale(0.8);}
+.card-body{display:none;padding:0 16px 14px 50px;}
+.word-card.revealed .card-body{display:block;}
+.card-meaning{
+  font-size:0.92rem;color:#b0b0b0;
+  border-top:1px solid #222;padding-top:12px;margin-bottom:12px;line-height:1.5;
+}
+.card-btns{display:flex;gap:8px;}
+.act-btn{
+  flex:1;padding:9px 0;border:none;border-radius:10px;
+  font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.15s;
+}
+.act-wrong{background:#2a1010;color:#ff6b6b;}
+.act-wrong:hover{background:#ff6b6b;color:#000;}
+.act-correct{background:#0f2a10;color:#6bff7a;}
+.act-correct:hover{background:#6bff7a;color:#000;}
+.act-edit{background:#1a1a1a;color:#999;border:1px solid #2a2a2a;flex:none;padding:9px 14px;}
+.act-edit:hover{color:#c8ff00;border-color:#c8ff00;}
+.act-del{background:#1a0f0f;color:#ff4444;border:1px solid #2a1010;flex:none;padding:9px 14px;}
+.act-del:hover{background:#ff4444;color:#fff;}
+
+.bottom-nav{
+  display:flex;gap:10px;justify-content:center;
+  padding:20px 24px 0;
+}
+.nav-btn{
+  padding:13px 32px;border:none;border-radius:12px;
+  font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.15s;
+}
+.nav-prev{background:#1e1e1e;color:#888;}
+.nav-prev:hover{background:#2a2a2a;}
+.nav-next{background:#c8ff00;color:#000;}
+.nav-next:hover{background:#aade00;}
+
+.modal-bg{
+  display:none;position:fixed;inset:0;background:#000c;
+  z-index:200;align-items:center;justify-content:center;
+}
+.modal-bg.open{display:flex;}
+.modal{
+  background:#1a1a1a;border:1px solid #2a2a2a;border-radius:18px;
+  padding:24px;width:90%;max-width:340px;
+}
+.modal h3{font-size:0.95rem;color:#c8ff00;margin-bottom:14px;}
+.modal input{
+  width:100%;background:#111;border:1px solid #333;color:#f0f0f0;
+  font-size:0.95rem;padding:10px 12px;border-radius:8px;outline:none;margin-bottom:10px;
+}
+.modal input:focus{border-color:#c8ff00;}
+.modal-btns{display:flex;gap:8px;margin-top:4px;}
+.modal-btns button{flex:1;padding:10px;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;}
+.m-save{background:#c8ff00;color:#000;}
+.m-cancel{background:#2a2a2a;color:#aaa;}
+
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+  background:#141a14;border:1px solid #c8ff0050;color:#c8ff00;
+  padding:9px 22px;border-radius:99px;font-size:0.8rem;
+  opacity:0;transition:opacity 0.3s;z-index:300;pointer-events:none;white-space:nowrap;
+}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>단어장 16~20번 ⚡</h1>
+  <div class="subtitle" id="totalCount">총 0개 단어</div>
+</div>
+
+<div class="prog-row">
+  <span class="prog-text" id="progText">0% 완료</span>
+  <button class="btn-reset" onclick="resetAll()">🔄 초기화</button>
+</div>
+<div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+
+<div class="stats">
+  <div class="stat-box s-total"><div class="stat-num" id="stTotal">0</div><div class="stat-lbl">전체</div></div>
+  <div class="stat-box s-right"><div class="stat-num" id="stRight">0</div><div class="stat-lbl">✅ 맞음</div></div>
+  <div class="stat-box s-wrong"><div class="stat-num" id="stWrong">0</div><div class="stat-lbl">❌ 틀림</div></div>
+  <div class="stat-box s-left" ><div class="stat-num" id="stLeft">0</div><div class="stat-lbl">남은것</div></div>
+</div>
+
+<div class="filter-row">
+  <button class="f-btn on" id="fall" onclick="setFilter('all')">📚 전체</button>
+  <button class="f-btn" id="fwrong" onclick="setFilter('wrong')">❌ 틀린것</button>
+  <button class="f-btn" id="fright" onclick="setFilter('right')">✅ 맞은것</button>
+  <button class="f-btn" id="fnone" onclick="setFilter('none')">📝 안푼것</button>
+</div>
+
+<div class="sec-row">
+  <button class="sec-btn on" id="sall" onclick="setSec('all')">전체</button>
+  <button class="sec-btn" id="s16" onclick="setSec('16번')">16번</button>
+  <button class="sec-btn" id="s17" onclick="setSec('17번')">17번</button>
+  <button class="sec-btn" id="s18" onclick="setSec('18번')">18번</button>
+  <button class="sec-btn" id="s19" onclick="setSec('19번')">19번</button>
+  <button class="sec-btn" id="s20" onclick="setSec('20번')">20번</button>
+</div>
+
+<div class="page-label" id="pageLabel">📖 1~10 / 0</div>
+<div class="cards" id="cardsEl"></div>
+
+<div class="bottom-nav">
+  <button class="nav-btn nav-prev" onclick="prevPage()">← 이전</button>
+  <button class="nav-btn nav-next" onclick="nextPage()">다음 →</button>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>✏️ 단어 수정</h3>
+    <input type="text" id="editEn" placeholder="영어 단어"/>
+    <input type="text" id="editKo" placeholder="한국어 뜻"/>
+    <div class="modal-btns">
+      <button class="m-cancel" onclick="closeModal()">취소</button>
+      <button class="m-save" onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const BASE = [
+  /* ── 16번 정보관리 ── */
+  {en:"relegates", ko:"격하시키다, 밀어내다", sec:"16번"},
+  {en:"distracting", ko:"집중을 방해하는", sec:"16번"},
+  {en:"consumption", ko:"소비", sec:"16번"},
+  {en:"scanning", ko:"훑어보는", sec:"16번"},
+  {en:"prescribed", ko:"정해진, 규정된", sec:"16번"},
+  {en:"situational", ko:"상황적인", sec:"16번"},
+  {en:"awareness", ko:"인식, 의식", sec:"16번"},
+  {en:"anticipate", ko:"예측하다, 대비하다", sec:"16번"},
+  {en:"distracts", ko:"산만하게 하다", sec:"16번"},
+  {en:"affect", ko:"영향을 미치다", sec:"16번"},
+  {en:"irrelevant", ko:"관련 없는", sec:"16번"},
+  {en:"advocating", ko:"지지하는, 옹호하는", sec:"16번"},
+  {en:"ignoring", ko:"무시하는", sec:"16번"},
+  {en:"intake", ko:"섭취, 받아들임", sec:"16번"},
+  {en:"extraneous", ko:"불필요한, 외부의", sec:"16번"},
+  {en:"decide", ko:"결정하다", sec:"16번"},
+
+  /* ── 17번 AI혁명 ── */
+  {en:"prepare", ko:"준비하다", sec:"17번"},
+  {en:"underscored", ko:"강조된", sec:"17번"},
+  {en:"generative", ko:"생성형의", sec:"17번"},
+  {en:"increased", ko:"증가된", sec:"17번"},
+  {en:"poised", ko:"준비된, 태세를 갖춘", sec:"17번"},
+  {en:"significant", ko:"중요한, 상당한", sec:"17번"},
+  {en:"navigate", ko:"헤쳐나가다", sec:"17번"},
+  {en:"prioritise", ko:"우선시하다", sec:"17번"},
+  {en:"equip", ko:"갖추게 하다", sec:"17번"},
+  {en:"displaced", ko:"대체된, 일자리를 잃은", sec:"17번"},
+  {en:"adequate", ko:"충분한, 적절한", sec:"17번"},
+  {en:"safeguarding", ko:"보호하는", sec:"17번"},
+  {en:"integration", ko:"통합", sec:"17번"},
+  {en:"inclusive", ko:"포용적인", sec:"17번"},
+  {en:"labour", ko:"노동", sec:"17번"},
+  {en:"paramount", ko:"가장 중요한", sec:"17번"},
+  {en:"dialogue", ko:"대화", sec:"17번"},
+  {en:"ensure", ko:"보장하다", sec:"17번"},
+  {en:"transforming", ko:"변환하는", sec:"17번"},
+  {en:"opportunities", ko:"기회들", sec:"17번"},
+
+  /* ── 18번 능력주의 ── */
+  {en:"responsibility", ko:"책임", sec:"18번"},
+  {en:"merit", ko:"능력, 자격", sec:"18번"},
+  {en:"appealing", ko:"매력적인", sec:"18번"},
+  {en:"regardless", ko:"~에 상관없이", sec:"18번"},
+  {en:"contribution", ko:"기여, 공헌", sec:"18번"},
+  {en:"desirable", ko:"바람직한", sec:"18번"},
+  {en:"favoritism", ko:"편애, 특혜", sec:"18번"},
+  {en:"virtue", ko:"덕목, 미덕", sec:"18번"},
+  {en:"fairness", ko:"공정성", sec:"18번"},
+  {en:"discriminate", ko:"차별하다", sec:"18번"},
+  {en:"achievement", ko:"성취, 업적", sec:"18번"},
+  {en:"generalized", ko:"일반화된", sec:"18번"},
+  {en:"hiring", ko:"채용", sec:"18번"},
+  {en:"efficiency", ko:"효율성", sec:"18번"},
+
+  /* ── 19번 적극적 듣기 ── */
+  {en:"active", ko:"적극적인, 능동적인", sec:"19번"},
+  {en:"discipline", ko:"훈련, 규율", sec:"19번"},
+  {en:"techniques", ko:"기술, 방법", sec:"19번"},
+  {en:"quietly", ko:"조용히", sec:"19번"},
+  {en:"ignoring", ko:"무시하는", sec:"19번"},
+  {en:"inflection", ko:"억양, 음의 변화", sec:"19번"},
+  {en:"perceived", ko:"인지된, 감지된", sec:"19번"},
+
+  /* ── 20번 홀리데이 소비 ── */
+  {en:"overspend", ko:"과소비하다", sec:"20번"},
+  {en:"purchases", ko:"구매, 구입", sec:"20번"},
+  {en:"innate", ko:"타고난, 선천적인", sec:"20번"},
+  {en:"impulse", ko:"충동", sec:"20번"},
+  {en:"gratification", ko:"만족, 충족", sec:"20번"},
+  {en:"eclipse", ko:"능가하다, 압도하다", sec:"20번"},
+  {en:"abstract", ko:"추상적인", sec:"20번"},
+  {en:"cognitive", ko:"인지적인", sec:"20번"},
+  {en:"instant", ko:"즉각적인", sec:"20번"},
+  {en:"appear", ko:"~처럼 보이다", sec:"20번"},
+  {en:"promote", ko:"홍보하다, 촉진하다", sec:"20번"},
+  {en:"deals", ko:"거래, 할인", sec:"20번"},
+];
+
+const KEY='vocab_1620_v1', PG=10;
+let state=load();
+let curSec='all';
+
+function newState(){
+  return {words:BASE.map((w,i)=>({...w,id:i,deleted:false})),results:{},filter:'all',page:0};
+}
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.words)return s;}catch(e){}
+  return newState();
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+
+function alive(){return state.words.filter(w=>!w.deleted);}
+function bySec(arr){
+  if(curSec==='all') return arr;
+  return arr.filter(w=>w.sec===curSec);
+}
+function filtered(){
+  let a=bySec(alive());
+  if(state.filter==='wrong') return a.filter(w=>state.results[w.id]===false);
+  if(state.filter==='right') return a.filter(w=>state.results[w.id]===true);
+  if(state.filter==='none')  return a.filter(w=>state.results[w.id]===undefined);
+  return a;
+}
+
+function render(){
+  const fw=filtered(), a=alive();
+  const totalPg=Math.max(1,Math.ceil(fw.length/PG));
+  state.page=Math.min(state.page,totalPg-1);
+  const start=state.page*PG;
+  const page=fw.slice(start,start+PG);
+
+  const right=a.filter(w=>state.results[w.id]===true).length;
+  const wrong=a.filter(w=>state.results[w.id]===false).length;
+  const left=a.length-right-wrong;
+  const pct=a.length?Math.round((right+wrong)/a.length*100):0;
+
+  document.getElementById('progText').textContent=pct+'% 완료';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('stTotal').textContent=a.length;
+  document.getElementById('stRight').textContent=right;
+  document.getElementById('stWrong').textContent=wrong;
+  document.getElementById('stLeft').textContent=left;
+  document.getElementById('totalCount').textContent='총 '+a.length+'개 단어';
+
+  const labels={all:'전체',wrong:'틀린것',right:'맞은것',none:'안푼것'};
+  const s=start+1, e=Math.min(start+PG,fw.length);
+  document.getElementById('pageLabel').textContent=
+    `📖 ${fw.length?s:0}~${fw.length?e:0} / ${fw.length} 【${labels[state.filter]}${curSec!=='all'?' · '+curSec:''}】`;
+
+  const el=document.getElementById('cardsEl');
+  el.innerHTML='';
+  if(!page.length){
+    el.innerHTML='<div style="text-align:center;color:#333;padding:50px 0;font-size:0.9rem;">해당하는 단어가 없어요</div>';
+    save();return;
+  }
+
+  page.forEach((w,pi)=>{
+    const res=state.results[w.id];
+    const div=document.createElement('div');
+    div.className='word-card'+(res===true?' correct':res===false?' wrong':'');
+    div.dataset.delId=w.id;
+    const statusIcon=res===true?'✅':res===false?'❌':'';
+
+    div.innerHTML=`
+      <div class="card-main">
+        <span class="card-num">${start+pi+1}</span>
+        <span class="card-word">${w.en}</span>
+        <span class="card-tag">${w.sec}</span>
+        <span class="card-status">${statusIcon}</span>
+        <button class="btn-sound" onclick="event.stopPropagation();speak('${w.en.replace(/'/g,"\\'")}')">🔊</button>
+      </div>
+      <div class="card-body">
+        <div class="card-meaning">${w.ko}</div>
+        <div class="card-btns">
+          <button class="act-btn act-wrong"   onclick="event.stopPropagation();setResult(${w.id},false)">❌ 틀렸다</button>
+          <button class="act-btn act-correct" onclick="event.stopPropagation();setResult(${w.id},true)">✅ 맞았다</button>
+          <button class="act-btn act-edit"    onclick="event.stopPropagation();openEdit(${w.id})">✏️</button>
+          <button class="act-btn act-del"     onclick="event.stopPropagation();delWord(${w.id})">🗑</button>
+        </div>
+      </div>`;
+
+    div.querySelector('.card-main').addEventListener('click',()=>div.classList.toggle('revealed'));
+    el.appendChild(div);
+  });
+  save();
+}
+
+function speak(w){
+  if(!('speechSynthesis' in window)){showToast('⚠️ 발음 미지원');return;}
+  const u=new SpeechSynthesisUtterance(w);
+  u.lang='en-US';u.rate=0.85;
+  speechSynthesis.cancel();speechSynthesis.speak(u);
+}
+function setResult(id,ok){
+  state.results[id]=ok;
+  showToast(ok?'✅ 맞았다!':'❌ 틀렸다!');
+  render();
+}
+function delWord(id){
+  const existing=document.getElementById('del-confirm-'+id);
+  if(existing){existing.remove();return;}
+  const card=document.querySelector(`[data-del-id="${id}"]`);
+  const box=document.createElement('div');
+  box.id='del-confirm-'+id;
+  box.style.cssText='display:flex;gap:8px;padding:8px 16px 12px 50px;';
+  box.innerHTML=`
+    <span style="flex:1;font-size:0.82rem;color:#ff6b6b;align-self:center;">정말 삭제할까요?</span>
+    <button onclick="confirmDel(${id})" style="background:#ff4444;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:0.82rem;font-weight:700;cursor:pointer;">삭제</button>
+    <button onclick="cancelDel(${id})" style="background:#2a2a2a;color:#aaa;border:none;border-radius:8px;padding:7px 14px;font-size:0.82rem;cursor:pointer;">취소</button>`;
+  if(card) card.appendChild(box);
+}
+function confirmDel(id){
+  const w=state.words.find(x=>x.id===id);if(!w)return;
+  w.deleted=true;delete state.results[id];
+  showToast('🗑 삭제했어!');render();
+}
+function cancelDel(id){
+  const box=document.getElementById('del-confirm-'+id);
+  if(box)box.remove();
+}
+
+let editId=null;
+function openEdit(id){
+  const w=state.words.find(x=>x.id===id);if(!w)return;
+  editId=id;
+  document.getElementById('editEn').value=w.en;
+  document.getElementById('editKo').value=w.ko;
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(){editId=null;document.getElementById('modalBg').classList.remove('open');}
+function saveEdit(){
+  if(editId===null)return;
+  const w=state.words.find(x=>x.id===editId);if(!w)return;
+  w.en=document.getElementById('editEn').value.trim()||w.en;
+  w.ko=document.getElementById('editKo').value.trim()||w.ko;
+  closeModal();showToast('✏️ 수정됐어!');render();
+}
+
+function setFilter(f){
+  state.filter=f;state.page=0;
+  ['all','wrong','right','none'].forEach(x=>{
+    document.getElementById('f'+x).classList.toggle('on',x===f);
+  });
+  render();
+}
+
+function setSec(s){
+  curSec=s;state.page=0;
+  ['all','16번','17번','18번','19번','20번'].forEach(x=>{
+    const id='s'+(x==='all'?'all':x.replace('번',''));
+    const el=document.getElementById(id);
+    if(el) el.classList.toggle('on',x===s);
+  });
+  render();
+}
+
+function nextPage(){
+  const total=Math.max(1,Math.ceil(filtered().length/PG));
+  if(state.page<total-1){state.page++;render();window.scrollTo(0,0);}
+}
+function prevPage(){
+  if(state.page>0){state.page--;render();window.scrollTo(0,0);}
+}
+function resetAll(){
+  if(!confirm('모든 진행 상황을 초기화할까요?'))return;
+  state=newState();save();render();showToast('🔄 초기화됐어!');
+}
+
+let tt;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+document.getElementById('modalBg').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modalBg'))closeModal();
+});
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('modalBg').classList.contains('open'))return;
+  if(e.key==='ArrowRight')nextPage();
+  else if(e.key==='ArrowLeft')prevPage();
+});
+
+render();
+</script>
+</body>
+</html>
