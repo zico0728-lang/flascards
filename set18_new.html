@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>단어장 - SET 18</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:#0d0d0d;
+  color:#f0f0f0;
+  font-family:'Segoe UI',sans-serif;
+  min-height:100vh;
+  padding-bottom:60px;
+}
+
+.top{padding:28px 24px 0;text-align:center;}
+h1{
+  font-size:2rem;font-weight:900;color:#c8ff00;
+  letter-spacing:2px;margin-bottom:20px;
+  text-shadow:0 0 20px #c8ff0040;
+}
+
+.prog-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 24px;margin-bottom:8px;
+}
+.prog-text{font-size:0.9rem;color:#aaa;}
+.btn-reset{
+  background:#1a1a1a;border:1px solid #333;color:#aaa;
+  font-size:0.82rem;padding:7px 14px;border-radius:99px;cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+}
+.btn-reset:hover{border-color:#c8ff00;color:#c8ff00;}
+.prog-bar{height:5px;background:#222;margin:0 0 20px;}
+.prog-fill{height:100%;background:#c8ff00;transition:width 0.4s;}
+
+.stats{display:flex;gap:8px;padding:0 24px;margin-bottom:16px;}
+.stat-box{flex:1;background:#161616;border:1px solid #222;border-radius:10px;padding:10px;text-align:center;}
+.stat-num{font-size:1.1rem;font-weight:700;}
+.stat-lbl{font-size:0.65rem;color:#555;margin-top:2px;}
+.s-total .stat-num{color:#c8ff00;}
+.s-right .stat-num{color:#6bff7a;}
+.s-wrong .stat-num{color:#ff6b6b;}
+.s-left  .stat-num{color:#aaa;}
+
+.filter-row{display:flex;gap:8px;padding:0 24px;margin-bottom:16px;flex-wrap:wrap;}
+.f-btn{
+  padding:6px 14px;border-radius:99px;border:1px solid #2a2a2a;
+  background:none;color:#666;font-size:0.75rem;cursor:pointer;transition:all 0.15s;
+}
+.f-btn.on{background:#c8ff00;color:#000;border-color:#c8ff00;font-weight:700;}
+
+.page-label{
+  padding:0 24px;font-size:0.85rem;color:#888;
+  margin-bottom:14px;display:flex;align-items:center;gap:6px;
+}
+
+.cards{padding:0 16px;}
+.word-card{
+  background:#181c18;border:1px solid #1e221e;border-radius:16px;
+  padding:0;margin-bottom:10px;cursor:pointer;
+  transition:border-color 0.15s;overflow:hidden;
+}
+.word-card:hover{border-color:#2e322e;}
+.word-card.correct{border-color:#6bff7a40;background:#0e180f;}
+.word-card.wrong{border-color:#ff6b6b40;background:#180e0e;}
+
+.card-main{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 16px;
+}
+.card-num{font-size:0.78rem;color:#3a3a3a;min-width:18px;text-align:right;}
+.card-word{font-size:1.2rem;font-weight:700;color:#c8ff00;flex:1;letter-spacing:0.3px;}
+.card-status{font-size:1rem;min-width:22px;text-align:center;}
+.btn-sound{
+  background:none;border:none;font-size:1.5rem;
+  cursor:pointer;padding:2px 4px;border-radius:8px;
+  transition:transform 0.15s;line-height:1;
+}
+.btn-sound:active{transform:scale(0.8);}
+
+/* revealed */
+.card-body{
+  display:none;
+  padding:0 16px 14px 46px;
+}
+.word-card.revealed .card-body{display:block;}
+.card-meaning{
+  font-size:0.92rem;color:#b0b0b0;
+  border-top:1px solid #222;padding-top:12px;margin-bottom:12px;
+  line-height:1.5;
+}
+.card-btns{display:flex;gap:8px;}
+.act-btn{
+  flex:1;padding:9px 0;border:none;border-radius:10px;
+  font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.15s;
+}
+.act-wrong{background:#2a1010;color:#ff6b6b;}
+.act-wrong:hover{background:#ff6b6b;color:#000;}
+.act-correct{background:#0f2a10;color:#6bff7a;}
+.act-correct:hover{background:#6bff7a;color:#000;}
+.act-edit{background:#1a1a1a;color:#999;border:1px solid #2a2a2a;flex:none;padding:9px 14px;}
+.act-edit:hover{color:#c8ff00;border-color:#c8ff00;}
+.act-del{background:#1a0f0f;color:#ff4444;border:1px solid #2a1010;flex:none;padding:9px 14px;}
+.act-del:hover{background:#ff4444;color:#fff;}
+
+.bottom-nav{
+  display:flex;gap:10px;justify-content:center;
+  padding:20px 24px 0;
+}
+.nav-btn{
+  padding:13px 32px;border:none;border-radius:12px;
+  font-size:0.95rem;font-weight:700;cursor:pointer;transition:all 0.15s;
+}
+.nav-prev{background:#1e1e1e;color:#888;}
+.nav-prev:hover{background:#2a2a2a;}
+.nav-next{background:#c8ff00;color:#000;}
+.nav-next:hover{background:#aade00;}
+
+/* modal */
+.modal-bg{
+  display:none;position:fixed;inset:0;background:#000c;
+  z-index:200;align-items:center;justify-content:center;
+}
+.modal-bg.open{display:flex;}
+.modal{
+  background:#1a1a1a;border:1px solid #2a2a2a;border-radius:18px;
+  padding:24px;width:90%;max-width:340px;
+}
+.modal h3{font-size:0.95rem;color:#c8ff00;margin-bottom:14px;}
+.modal input{
+  width:100%;background:#111;border:1px solid #333;color:#f0f0f0;
+  font-size:0.95rem;padding:10px 12px;border-radius:8px;outline:none;margin-bottom:10px;
+}
+.modal input:focus{border-color:#c8ff00;}
+.modal-btns{display:flex;gap:8px;margin-top:4px;}
+.modal-btns button{flex:1;padding:10px;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;}
+.m-save{background:#c8ff00;color:#000;}
+.m-cancel{background:#2a2a2a;color:#aaa;}
+
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+  background:#141a14;border:1px solid #c8ff0050;color:#c8ff00;
+  padding:9px 22px;border-radius:99px;font-size:0.8rem;
+  opacity:0;transition:opacity 0.3s;z-index:300;pointer-events:none;white-space:nowrap;
+}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="top"><h1>단어장 SET 18 ⚡</h1></div>
+
+<div class="prog-row">
+  <span class="prog-text" id="progText">0% 완료</span>
+  <button class="btn-reset" onclick="resetAll()">🔄 초기화</button>
+</div>
+<div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+
+<div class="stats">
+  <div class="stat-box s-total"><div class="stat-num" id="stTotal">0</div><div class="stat-lbl">전체</div></div>
+  <div class="stat-box s-right"><div class="stat-num" id="stRight">0</div><div class="stat-lbl">✅ 맞음</div></div>
+  <div class="stat-box s-wrong"><div class="stat-num" id="stWrong">0</div><div class="stat-lbl">❌ 틀림</div></div>
+  <div class="stat-box s-left" ><div class="stat-num" id="stLeft">0</div><div class="stat-lbl">남은것</div></div>
+</div>
+
+<div class="filter-row">
+  <button class="f-btn on" id="fa" onclick="setFilter('all')">📚 전체</button>
+  <button class="f-btn"    id="fw" onclick="setFilter('wrong')">❌ 틀린것</button>
+  <button class="f-btn"    id="fr" onclick="setFilter('right')">✅ 맞은것</button>
+  <button class="f-btn"    id="fn" onclick="setFilter('none')">📝 안푼것</button>
+</div>
+
+<div class="page-label" id="pageLabel">📖 1~10 / 0</div>
+<div class="cards" id="cardsEl"></div>
+
+<div class="bottom-nav">
+  <button class="nav-btn nav-prev" onclick="prevPage()">← 이전</button>
+  <button class="nav-btn nav-next" onclick="nextPage()">다음 →</button>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>✏️ 단어 수정</h3>
+    <input type="text" id="editEn" placeholder="영어 단어"/>
+    <input type="text" id="editKo" placeholder="한국어 뜻"/>
+    <div class="modal-btns">
+      <button class="m-cancel" onclick="closeModal()">취소</button>
+      <button class="m-save"   onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BASE = [
+  {en:"familiar", ko:"익숙한"},
+  {en:"bare", ko:"있는 그대로의 / 벌거벗은"},
+  {en:"solve", ko:"해결하다 / 풀다"},
+  {en:"realize", ko:"깨닫다"},
+  {en:"denote", ko:"나타내다 / 가리키다"},
+  {en:"aim", ko:"겨냥하다 / 의도"},
+  {en:"plenty of", ko:"많은 / 풍부한"},
+  {en:"rely on", ko:"의존하다 / 의지"},
+  {en:"instantaneous", ko:"즉각적인"},
+  {en:"blink", ko:"눈을 깜빡이다"},
+  {en:"intend", ko:"의도하다"},
+  {en:"prove", ko:"증명하다"},
+  {en:"ideal", ko:"이상적인"},
+  {en:"praise A for B", ko:"B로부터 A를 칭찬하다"},
+  {en:"intention", ko:"의도"},
+  {en:"require", ko:"요구하다 / 필요로 하다"},
+  {en:"eager to", ko:"~하기를 간절히 바라는"},
+  {en:"prefer", ko:"선호하다"},
+  {en:"prediction", ko:"예언"},
+  {en:"ambition", ko:"야망 / 의욕"},
+  {en:"tend to", ko:"~하는 경향이있다"},
+  {en:"weigh", ko:"무게가~이다 / 무게를달다"},
+  {en:"oppose", ko:"반대하다"},
+  {en:"artificial", ko:"인공적인"},
+  {en:"crush", ko:"으깨다 / 매주란을 깨기"},
+  {en:"embrace", ko:"포용하다 / 받아들이다"},
+  {en:"compare", ko:"비교하다"},
+  {en:"permanent", ko:"끊임없는 / 영구적인"},
+  {en:"forecast", ko:"예측 / 예보 / 예측하다 / 예보하다"},
+  {en:"persistent", ko:"끊임없는 / 영구적인"},
+  {en:"synthetic", ko:"인조의"},
+  {en:"prior", ko:"앞의 / ~보다앞선"},
+  {en:"permit", ko:"허용하다"},
+  {en:"incident", ko:"사건 / 일어날일"},
+  {en:"priority", ko:"우선권"},
+  {en:"preference", ko:"우선권 / 더좋아함"},
+  {en:"divide", ko:"나누다 / 쪼개다"},
+  {en:"barely", ko:"간신히 / 겨우 / ~의 ~이나 다"},
+  {en:"apply to", ko:"~에 적용되다"},
+  {en:"struggle", ko:"애쓰다 / 다투다 / 투쟁 / 노력"},
+  {en:"optimal", ko:"최적의 / 최상의"},
+  {en:"consult", ko:"상담하다"},
+  {en:"transmit", ko:"전달하다 / 전송시키다"},
+  {en:"admit", ko:"자백하다 / 허용하다"},
+  {en:"eternal", ko:"끊임없는 / 영구적인"},
+  {en:"vacant", ko:"비어있는"},
+  {en:"contrary", ko:"반대하다"},
+  {en:"affordable", ko:"가격이 알맞은"},
+  {en:"repair", ko:"수리하다"},
+  {en:"be fond of", ko:"~을 좋아하다"},
+  {en:"clever", ko:"영리한"},
+  {en:"perpetual", ko:"끊임없는 / 영구적인"},
+  {en:"fare", ko:"요금"},
+  {en:"reverse", ko:"반대하다"},
+  {en:"resist", ko:"반대하다"},
+  {en:"outcome", ko:"결과 / 성과 / 결론"},
+  {en:"constant", ko:"끊임없는 / 영구적인"},
+  {en:"precedence", ko:"우선권 / 선행"},
+  {en:"ultimate", ko:"최종의 / 최고의"},
+  {en:"feature", ko:"특징 / 피처본의특징"},
+];
+
+const KEY='set18_v1', PG=10;
+let state=load();
+
+function newState(){
+  return {words:BASE.map((w,i)=>({...w,id:i,deleted:false})),results:{},filter:'all',page:0};
+}
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.words)return s;}catch(e){}
+  return newState();
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+
+function alive(){return state.words.filter(w=>!w.deleted);}
+function filtered(){
+  const a=alive();
+  if(state.filter==='wrong') return a.filter(w=>state.results[w.id]===false);
+  if(state.filter==='right') return a.filter(w=>state.results[w.id]===true);
+  if(state.filter==='none')  return a.filter(w=>state.results[w.id]===undefined);
+  return a;
+}
+
+function render(){
+  const fw=filtered(), a=alive();
+  const totalPg=Math.max(1,Math.ceil(fw.length/PG));
+  state.page=Math.min(state.page,totalPg-1);
+  const start=state.page*PG;
+  const page=fw.slice(start,start+PG);
+
+  const right=a.filter(w=>state.results[w.id]===true).length;
+  const wrong =a.filter(w=>state.results[w.id]===false).length;
+  const left  =a.length-right-wrong;
+  const pct   =a.length?Math.round((right+wrong)/a.length*100):0;
+
+  document.getElementById('progText').textContent=pct+'% 완료';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('stTotal').textContent=a.length;
+  document.getElementById('stRight').textContent=right;
+  document.getElementById('stWrong').textContent=wrong;
+  document.getElementById('stLeft').textContent=left;
+
+  const labels={all:'전체',wrong:'틀린것',right:'맞은것',none:'안푼것'};
+  const s=start+1, e=Math.min(start+PG,fw.length);
+  document.getElementById('pageLabel').textContent=
+    `📖 ${fw.length?s:0}~${fw.length?e:0} / ${fw.length} 【${labels[state.filter]}】`;
+
+  const el=document.getElementById('cardsEl');
+  el.innerHTML='';
+  if(!page.length){
+    el.innerHTML='<div style="text-align:center;color:#333;padding:50px 0;font-size:0.9rem;">해당하는 단어가 없어요</div>';
+    save();return;
+  }
+
+  page.forEach((w,pi)=>{
+    const res=state.results[w.id];
+    const div=document.createElement('div');
+    div.className='word-card'+(res===true?' correct':res===false?' wrong':'');
+    div.dataset.delId=w.id;
+
+    const statusIcon = res===true?'✅':res===false?'❌':'';
+
+    div.innerHTML=`
+      <div class="card-main">
+        <span class="card-num">${start+pi+1}</span>
+        <span class="card-word">${w.en}</span>
+        <span class="card-status">${statusIcon}</span>
+        <button class="btn-sound" onclick="event.stopPropagation();speak('${w.en.replace(/'/g,"\\'")}')">🔊</button>
+      </div>
+      <div class="card-body">
+        <div class="card-meaning">${w.ko}</div>
+        <div class="card-btns">
+          <button class="act-btn act-wrong"   onclick="event.stopPropagation();setResult(${w.id},false)">❌ 틀렸다</button>
+          <button class="act-btn act-correct" onclick="event.stopPropagation();setResult(${w.id},true)">✅ 맞았다</button>
+          <button class="act-btn act-edit"    onclick="event.stopPropagation();openEdit(${w.id})">✏️</button>
+          <button class="act-btn act-del"     onclick="event.stopPropagation();delWord(${w.id})">🗑</button>
+        </div>
+      </div>`;
+
+    div.querySelector('.card-main').addEventListener('click',()=>div.classList.toggle('revealed'));
+    el.appendChild(div);
+  });
+  save();
+}
+
+function speak(w){
+  if(!('speechSynthesis' in window)){showToast('⚠️ 발음 미지원');return;}
+  const u=new SpeechSynthesisUtterance(w);
+  u.lang='en-US';u.rate=0.85;
+  speechSynthesis.cancel();speechSynthesis.speak(u);
+}
+
+function setResult(id,ok){
+  state.results[id]=ok;
+  showToast(ok?'✅ 맞았다!':'❌ 틀렸다!');
+  render();
+}
+
+function delWord(id){
+  const w=state.words.find(x=>x.id===id);if(!w)return;
+  const existing=document.getElementById('del-confirm-'+id);
+  if(existing){existing.remove();return;}
+  const card=document.querySelector(`[data-del-id="${id}"]`);
+  const box=document.createElement('div');
+  box.id='del-confirm-'+id;
+  box.style.cssText='display:flex;gap:8px;padding:8px 16px 12px 46px;';
+  box.innerHTML=`
+    <span style="flex:1;font-size:0.82rem;color:#ff6b6b;align-self:center;">정말 삭제할까요?</span>
+    <button onclick="confirmDel(${id})" style="background:#ff4444;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:0.82rem;font-weight:700;cursor:pointer;">삭제</button>
+    <button onclick="cancelDel(${id})" style="background:#2a2a2a;color:#aaa;border:none;border-radius:8px;padding:7px 14px;font-size:0.82rem;cursor:pointer;">취소</button>`;
+  if(card) card.appendChild(box);
+}
+function confirmDel(id){
+  const w=state.words.find(x=>x.id===id);if(!w)return;
+  w.deleted=true;delete state.results[id];
+  showToast('🗑 삭제했어!');render();
+}
+function cancelDel(id){
+  const box=document.getElementById('del-confirm-'+id);
+  if(box)box.remove();
+}
+
+let editId=null;
+function openEdit(id){
+  const w=state.words.find(x=>x.id===id);if(!w)return;
+  editId=id;
+  document.getElementById('editEn').value=w.en;
+  document.getElementById('editKo').value=w.ko;
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(){editId=null;document.getElementById('modalBg').classList.remove('open');}
+function saveEdit(){
+  if(editId===null)return;
+  const w=state.words.find(x=>x.id===editId);if(!w)return;
+  w.en=document.getElementById('editEn').value.trim()||w.en;
+  w.ko=document.getElementById('editKo').value.trim()||w.ko;
+  closeModal();showToast('✏️ 수정됐어!');render();
+}
+
+function setFilter(f){
+  state.filter=f;state.page=0;
+  ['all','wrong','right','none'].forEach(x=>{
+    document.getElementById('f'+x[0]).classList.toggle('on',x===f);
+  });
+  render();
+}
+function nextPage(){
+  const total=Math.max(1,Math.ceil(filtered().length/PG));
+  if(state.page<total-1){state.page++;render();window.scrollTo(0,0);}
+}
+function prevPage(){
+  if(state.page>0){state.page--;render();window.scrollTo(0,0);}
+}
+function resetAll(){
+  if(!confirm('모든 진행 상황을 초기화할까요?'))return;
+  state=newState();save();render();showToast('🔄 초기화됐어!');
+}
+
+let tt;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+document.getElementById('modalBg').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modalBg'))closeModal();
+});
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('modalBg').classList.contains('open'))return;
+  if(e.key==='ArrowRight')nextPage();
+  else if(e.key==='ArrowLeft')prevPage();
+});
+
+render();
+</script>
+</body>
+</html>
