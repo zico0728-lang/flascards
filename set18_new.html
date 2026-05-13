@@ -386,8 +386,13 @@ function showDone(){
 function startReview(ids){
   // 복습할 단어만 results 초기화, 나머지는 유지
   ids.forEach(function(id){ delete state.results[id]; });
-  // 복습 대상 아닌 단어는 임시로 'skip' 표시해서 필터에서 제외
-  state.reviewIds = ids;
+  // 순서 랜덤 섞기
+  var shuffled = ids.slice();
+  for(var i=shuffled.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=shuffled[i]; shuffled[i]=shuffled[j]; shuffled[j]=t;
+  }
+  state.reviewIds = shuffled;
   state.isReview = true;
   state.filter='none'; state.page=0;
   document.getElementById('doneScreen').classList.remove('open');
