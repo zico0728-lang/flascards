@@ -146,6 +146,23 @@ h1{
   opacity:0;transition:opacity 0.3s;z-index:300;pointer-events:none;white-space:nowrap;
 }
 .toast.show{opacity:1;}
+
+.done-screen{display:none;flex-direction:column;align-items:center;gap:12px;padding:24px 16px 48px;width:100%;max-width:500px;margin:0 auto;}
+.done-screen.open{display:flex;}
+.done-score{font-size:3.5rem;font-weight:900;color:#c8ff00;line-height:1;}
+.done-lbl{font-size:0.78rem;color:#666;letter-spacing:2px;margin-bottom:2px;}
+.done-msg{font-size:0.88rem;color:#888;margin-bottom:8px;}
+.done-btn{width:100%;max-width:320px;padding:14px 0;border-radius:14px;border:none;font-size:0.92rem;font-weight:700;cursor:pointer;margin:2px 0;}
+.done-miss{background:#2a1010;color:#ff6b6b;border:1.5px solid #ff6b6b50;}
+.done-know{background:#0f2a10;color:#6bff7a;border:1.5px solid #6bff7a50;}
+.done-restart{background:#c8ff00;color:#000;}
+.done-sep{width:100%;max-width:320px;border-top:1px solid #222;margin:8px 0;}
+.done-first-lbl{font-size:0.7rem;color:#555;letter-spacing:1px;margin-bottom:4px;}
+.done-wlist{width:100%;max-width:480px;text-align:left;margin-top:12px;}
+.done-wlist h3{font-size:0.72rem;letter-spacing:2px;color:#555;margin-bottom:8px;}
+.done-wrow{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:8px;margin-bottom:5px;}
+.done-wrow.r{background:#0d1a0e;border:1px solid #6bff7a20;}
+.done-wrow.w{background:#1a0d0d;border:1px solid #ff6b6b20;}
 </style>
 </head>
 <body>
@@ -192,6 +209,7 @@ h1{
   </div>
 </div>
 
+<div class="done-screen" id="doneScreen"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -258,7 +276,7 @@ const BASE = [
   {en:"treat", ko:"대접"}
 ];
 
-const KEY='set16_v1', PG=10;
+const KEY='set16_v1', PG=10, RK='set16_v1_FR';
 let state=load();
 
 function newState(){
@@ -279,6 +297,93 @@ function filtered(){
   return a;
 }
 
+
+function saveFR(){
+  try{
+    if(localStorage.getItem(RK)) return;
+    var a=alive();
+    var k=a.filter(function(w){return state.results[w.id]===true;}).map(function(w){return {en:w.en,ko:w.ko};});
+    var m=a.filter(function(w){return state.results[w.id]===false;}).map(function(w){return {en:w.en,ko:w.ko};});
+    localStorage.setItem(RK,JSON.stringify({k:k,m:m}));
+  }catch(e){}
+}
+function loadFR(){
+  try{return JSON.parse(localStorage.getItem(RK));}catch(e){return null;}
+}
+function showDone(){
+  saveFR();
+  var a=alive();
+  var kk=a.filter(function(w){return state.results[w.id]===true;});
+  var mm=a.filter(function(w){return state.results[w.id]===false;});
+  var first=loadFR();
+  var ds=document.getElementById('doneScreen');
+  ds.innerHTML=''; ds.classList.add('open');
+  window.scrollTo(0,0);
+  var total=kk.length+mm.length;
+  var r=total>0?kk.length/total:0;
+  var msg=r===1?'완벽해요! 🏆':r>=0.8?'잘했어요! 💪':r>=0.5?'절반 이상! 📖':'계속 연습해요 💡';
+  var em=document.createElement('div'); em.style.fontSize='2.5rem'; em.textContent='🎉'; ds.appendChild(em);
+  var sc=document.createElement('div'); sc.className='done-score'; sc.textContent=kk.length+' / '+total; ds.appendChild(sc);
+  var lb=document.createElement('div'); lb.className='done-lbl'; lb.textContent='정답 / 전체'; ds.appendChild(lb);
+  var mg=document.createElement('div'); mg.className='done-msg'; mg.textContent=msg; ds.appendChild(mg);
+  if(mm.length>0){
+    var b=document.createElement('button'); b.className='done-btn done-miss';
+    b.textContent='❌ 틀린 것 다시 ('+mm.length+'개)';
+    b.onclick=function(){ startReview(mm.map(function(w){return w.id;})); };
+    ds.appendChild(b);
+  } else if(total>0){
+    var p=document.createElement('div'); p.style.cssText='color:#6bff7a;font-size:0.9rem;';
+    p.textContent='🎊 틀린 단어가 없어요!'; ds.appendChild(p);
+  }
+  if(first){
+    var sep=document.createElement('div'); sep.className='done-sep'; ds.appendChild(sep);
+    var fl=document.createElement('div'); fl.className='done-first-lbl'; fl.textContent='📌 최초 결과 기준'; ds.appendChild(fl);
+    if(first.m&&first.m.length>0){
+      var b2=document.createElement('button'); b2.className='done-btn done-miss';
+      b2.textContent='❌ 최초 틀린 것 ('+first.m.length+'개)';
+      b2.onclick=function(){ startReviewByWord(first.m); }; ds.appendChild(b2);
+    }
+    if(first.k&&first.k.length>0){
+      var b3=document.createElement('button'); b3.className='done-btn done-know';
+      b3.textContent='✓ 최초 맞은 것 ('+first.k.length+'개)';
+      b3.onclick=function(){ startReviewByWord(first.k); }; ds.appendChild(b3);
+    }
+  }
+  function makeList(title,words,cls,color){
+    if(!words||!words.length) return;
+    var wrap=document.createElement('div'); wrap.className='done-wlist';
+    var h=document.createElement('h3'); h.textContent=title+' ('+words.length+'개)'; wrap.appendChild(h);
+    words.forEach(function(w){
+      var row=document.createElement('div'); row.className='done-wrow '+cls;
+      var en=document.createElement('span'); en.style.fontWeight='700'; en.style.color=color; en.textContent=w.en;
+      var ko=document.createElement('span'); ko.style.fontSize='0.82rem'; ko.style.color='#888'; ko.textContent=w.ko;
+      row.appendChild(en); row.appendChild(ko); wrap.appendChild(row);
+    });
+    ds.appendChild(wrap);
+  }
+  var sh=first||{k:kk.map(function(w){return{en:w.en,ko:w.ko};}),m:mm.map(function(w){return{en:w.en,ko:w.ko};})};
+  makeList('✓ 맞은 단어',sh.k,'r','#6bff7a');
+  makeList('❌ 틀린 단어',sh.m,'w','#ff6b6b');
+  var sep2=document.createElement('div'); sep2.className='done-sep'; ds.appendChild(sep2);
+  var rb=document.createElement('button'); rb.className='done-btn done-restart'; rb.textContent='🔄 처음부터 다시'; rb.onclick=resetAll; ds.appendChild(rb);
+}
+function startReview(ids){
+  ids.forEach(function(id){ delete state.results[id]; });
+  state.filter='none'; state.page=0;
+  document.getElementById('doneScreen').classList.remove('open');
+  ['all','wrong','right','none'].forEach(function(x){
+    document.getElementById('f'+x[0]).classList.toggle('on',x==='none');
+  });
+  save(); render(); showToast('🔁 복습 시작!');
+}
+function startReviewByWord(words){
+  var ids=[];
+  words.forEach(function(w){
+    var found=state.words.find(function(x){return x.en===w.en&&!x.deleted;});
+    if(found) ids.push(found.id);
+  });
+  startReview(ids);
+}
 function render(){
   const fw=filtered(), a=alive();
   const totalPg=Math.max(1,Math.ceil(fw.length/PG));
@@ -352,6 +457,9 @@ function setResult(id,ok){
   state.results[id]=ok;
   showToast(ok?'✅ 맞았다!':'❌ 틀렸다!');
   render();
+  var a=alive();
+  var left=a.filter(function(w){return state.results[w.id]===undefined;}).length;
+  if(left===0 && a.length>0) setTimeout(showDone, 700);
 }
 
 function delWord(id){
@@ -410,8 +518,10 @@ function prevPage(){
   if(state.page>0){state.page--;render();window.scrollTo(0,0);}
 }
 function resetAll(){
-  if(!confirm('모든 진행 상황을 초기화할까요?'))return;
-  state=newState();save();render();showToast('🔄 초기화됐어!');
+  localStorage.removeItem(RK);
+  state=newState();save();
+  document.getElementById('doneScreen').classList.remove('open');
+  render();showToast('🔄 초기화됐어!');
 }
 
 let tt;
